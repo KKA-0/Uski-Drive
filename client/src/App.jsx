@@ -1,35 +1,85 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import Nav from "./pages/Nav";
+import Home from "./pages/Home";
+import Ask from "./pages/Ask";
+import Answer from "./pages/Answer";
+import FAQ from "./pages/FAQ";
+import Login from "./pages/Login";
+import Contact from "./pages/Contact";
+import ErrorPage from "./pages/ErrorPage";
+import { useState, useEffect } from "react";
+import RingLoader from "react-spinners/RingLoader";
+import Signup from "./pages/Signup";
+import { auth } from "./firebase/Firebase";
+import Profile from "./pages/Profile";
+const App = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 3500);
+  }, []);
 
-function App() {
-  const [count, setCount] = useState(0)
+  const [UserName, setUserName] = useState("");
+  const [loginStatus, setLoginStatus] = useState("Login");
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserName(user.displayName);
+        setLoginStatus("Logout");
+      } else {
+        setUserName("Login");
+      }
+    });
+  }, []);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          kka noob coun is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth,
+  });
+  useEffect(() => {
+    function handleResize() {
+      setDimensions({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+    }
 
-export default App
+    window.addEventListener("resize", handleResize);
+
+    // Return a function that removes the event listener
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []); // Empty array means this effect will only run on mount and unmount
+
+  return loading ? (
+    <div className="loading">
+      <RingLoader color="#fff" size={100} className="loading" />
+    </div>
+  ) : (
+    <BrowserRouter>
+      {dimensions.width <= 786 ? (
+        <Nav LoginStatus={loginStatus} />
+      ) : (
+        <Header LoginStatus={loginStatus} />
+      )}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/ask" element={<Ask />} />
+        <Route path="/answer" element={<Answer />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="*" element={<ErrorPage />} />
+        <Route path="/profile" element={<Profile name={UserName} />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
