@@ -1,14 +1,20 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb')
+const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
-// AWS.config.update({
-//   region: process.env.region,
-//   accessKeyId: process.env.accessKeyId,
-//   secretAccessKey: process.env.secretAccessKey
-// });
+const AWSconfig = {
+  region: process.env.region,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
+}
 
-const DB = new DynamoDBClient({region: process.env.region})
-const Table = "uski-drive-table"
+const S3 = new S3Client(AWSconfig)
+const DB = new DynamoDBClient(AWSconfig)
+const Table = process.env.Table
+const Bucket = process.env.Bucket
 
 module.exports = {
-  DB, Table
+  DB, Table, S3, Bucket
 }

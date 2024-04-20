@@ -2,8 +2,29 @@ import "../Auth.style.scss"
 import svg from "../../../assets/login.svg";
 import { AiFillGithub, AiFillGoogleCircle } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
+import { useRef } from "react";
+import axios from 'axios'
 
 const Login = () => {
+
+  const email = useRef("")
+  const password = useRef("")
+  const handleLoginSubmit = () => {
+    
+    if(email.current.value != "" && password.current.value != ""){
+      axios.post('/user', {
+        email: email.current.value,
+        password: password.current.value
+      })
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+
+  }
 
   return (
     <section>
@@ -21,11 +42,13 @@ const Login = () => {
               </p>
               <input
                 type="email"
+                ref={email}
                 placeholder="Enter your Email"
                 required
               />
               <input
                 type="password"
+                ref={password}
                 className="down-border"
                 placeholder="Enter Your Password"
                 required
@@ -38,7 +61,7 @@ const Login = () => {
                   <a href="/">Forget Password?</a>
                 </div>
               </div>
-              <button>Log In</button>
+              <button onClick={handleLoginSubmit}>Log In</button>
               <hr />
               <p className="login-para">Or Login With</p>
               <div className="login-link-icon">

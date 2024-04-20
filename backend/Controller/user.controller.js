@@ -1,6 +1,7 @@
 const { DB, Table } = require("./../AWS.Config")
 var jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
 const { 
   GetItemCommand,
   PutItemCommand,
@@ -11,10 +12,22 @@ const {
  
 const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb')
 
+
+const HASH = async (pass) => {
+  const hashedpass = await bcrypt.hash(pass, 8)
+  return hashedpass
+}
+
+const CheckHASH = async (hashed, providePass) => {
+  const check = await bcrypt.compare(providePass, hashed)
+  return check
+}
+
 const TOKEN = (data) => {
   return jwt.sign(data, process.env.privateKey);
 }
 exports.signup = async (req, res) => {
+  console.log(req.body)
         var parameters = {
             TableName: Table,
             FilterExpression: "email = :email",
@@ -26,12 +39,15 @@ exports.signup = async (req, res) => {
           console.log(response.Items[0])
           if(!response.Items[0]){
             // IF User does NOT Exist Return the User Info and Create Token
+              // Creating Hash of User Password provided
+              var hashedPass = HASH(req.body.password)
                 const params = {
                     TableName: Table,
                     Item: marshall({
                       "id": uuidv4(),
                       "name": req.body.name,
-                      "email": req.body.email
+                      "email": req.body.email,
+                      "password": hashedPass
                   })
                   }
                   DB.send(new PutItemCommand(params))
@@ -47,13 +63,22 @@ exports.signup = async (req, res) => {
                     console.log(err)
                   })
           }else{
-              // IF User Exist Return the User Info and Create Token
-              var token = TOKEN(response.Items[0])
-              // Login user
-              res.status(200).json({
-                user: unmarshall(response.Items[0]),
-                token: token
-              });
+              // Check Password of Existing User
+              const bool = CheckHASH(response.Items[0].password, req.body.password)
+              console.log(bool)
+              if(bool){
+                // IF User Exist Return the User Info and Create Token
+                var token = TOKEN(response.Items[0])
+                // Login user
+                res.status(200).json({
+                  user: unmarshall(response.Items[0]),
+                  token: token
+                });
+              }else{
+                res.status(401).json({
+                  message: "Password Incorrect"
+                });
+              }
             }
         })
         .catch((err) => { 
