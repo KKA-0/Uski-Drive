@@ -14,7 +14,8 @@ const S3 = new S3Client(AWSconfig)
 const DB = new DynamoDBClient(AWSconfig)
 const Table = process.env.Table
 const Bucket = process.env.Bucket
+const FilesTable = process.env.FilesTable
 
 module.exports = {
-  DB, Table, S3, Bucket
+  DB, Table, S3, Bucket, FilesTable
 }
