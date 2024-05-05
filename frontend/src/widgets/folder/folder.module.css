@@ -1,0 +1,13 @@
+.FolderDiv{
+    height: 100px;
+    width: 150px;
+    margin: 10px;
+    background-color: rgb(236, 236, 236);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: black;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    cursor: pointer;
+}

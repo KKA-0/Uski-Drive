@@ -1,147 +1,114 @@
-const { DB, Table } = require("./../AWS.Config")
+// Importing necessary libraries and configurations
+const { DB, Table } = require("./../AWS.Config");
 var jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-const { 
+const {
   GetItemCommand,
   PutItemCommand,
   DeleteItemCommand,
   ScanCommand,
   UpdateItemCommand
- } = require('@aws-sdk/client-dynamodb')
- 
-const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb')
+} = require('@aws-sdk/client-dynamodb');
+const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb');
 
-
+// Hashes a password using bcrypt
 const HASH = async (pass) => {
-  const hashedpass = await bcrypt.hash(pass, 8)
-  return hashedpass
+  const hashedpass = await bcrypt.hash(pass, 8);
+  return hashedpass;
 }
 
+// Compares a provided password with a hashed one
 const CheckHASH = async (hashed, providePass) => {
-  const check = await bcrypt.compare(providePass, hashed)
-  return check
+  const check = await bcrypt.compare(providePass, hashed);
+  return check;
 }
 
-const TOKEN = (data) => {
-  return jwt.sign(data, process.env.privateKey);
-}
+// Generates a JWT token for the user
+const generateToken = userData => jwt.sign(userData, process.env.privateKey);
+
+// Searches for a user by email in the database
+const findUserByEmail = async email => {
+  const parameters = {
+    TableName: Table,
+    FilterExpression: "email = :email",
+    ExpressionAttributeValues: marshall({ ":email": email })
+  };
+
+  const { Items } = await DB.send(new ScanCommand(parameters));
+  return Items?.length ? unmarshall(Items[0]) : null;
+};
+
+// Creates a new user and stores it in the database
+const createUser = async userData => {
+  const userId = uuidv4();
+  const hashedPass = await HASH(userData.password);
+  const userItem = {
+    id: userId,
+    name: userData.name,
+    email: userData.email,
+    password: hashedPass
+  };
+
+  const params = {
+    TableName: Table,
+    Item: marshall(userItem)
+  };
+
+  await DB.send(new PutItemCommand(params));
+  return { user: userItem, token: generateToken({ id: userItem.id, name: userItem.name, email: userItem.email }) };
+};
+
+// Handles user signup, either creating a new user or validating an existing one
 exports.signup = async (req, res) => {
-  console.log(req.body)
-        var parameters = {
-            TableName: Table,
-            FilterExpression: "email = :email",
-            ExpressionAttributeValues: marshall({ ":email": `${req.body.email}` })
-        };        
-        
-        await DB.send(new ScanCommand(parameters))
-        .then((response) => {
-          console.log(response.Items[0])
-          if(!response.Items[0]){
-            // IF User does NOT Exist Return the User Info and Create Token
-              // Creating Hash of User Password provided
-              var hashedPass = HASH(req.body.password)
-                const params = {
-                    TableName: Table,
-                    Item: marshall({
-                      "id": uuidv4(),
-                      "name": req.body.name,
-                      "email": req.body.email,
-                      "password": hashedPass
-                  })
-                  }
-                  DB.send(new PutItemCommand(params))
-                  .then((response) => {
-                    var token = TOKEN(params.Item)
-                    // Response user Created
-                    res.status(201).json({
-                      user: unmarshall(params.Item),
-                      token: token
-                    });
-                  })
-                  .catch((err) => {
-                    console.log(err)
-                  })
-          }else{
-              // Check Password of Existing User
-              const bool = CheckHASH(response.Items[0].password, req.body.password)
-              console.log(bool)
-              if(bool){
-                // IF User Exist Return the User Info and Create Token
-                var token = TOKEN(response.Items[0])
-                // Login user
-                res.status(200).json({
-                  user: unmarshall(response.Items[0]),
-                  token: token
-                });
-              }else{
-                res.status(401).json({
-                  message: "Password Incorrect"
-                });
-              }
-            }
-        })
-        .catch((err) => { 
-          console.log(err)
-        })
-}
+  try {
+    const { name, email, password } = req.body;
+    let user = await findUserByEmail(email);
 
+    if (user) {
+      // User exists, check if the password provided matches the stored hash
+      const passwordMatch = await CheckHASH(user.password, password);
+      
+      if (passwordMatch) {
+        // Password matches, respond with a token
+        const token = generateToken(user);
+        res.status(200).json({ user, token });
+      } else {
+        // Password doesn't match, respond with an error
+        res.status(401).json({ message: "Password Incorrect" });
+      }
+    } else {
+      // No user found with that email, proceed to create a new user
+      const { user: newUser, token } = await createUser({ name, email, password });
+      res.status(201).json({ user: newUser, token });
+    }
+  } catch (error) {
+    // On error, respond with a server error message
+    console.error("signup error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Retrieves user data based on the user ID
 exports.getUser = async (req, res) => {
+  try {
     const params = {
       TableName: Table,
-      Key: marshall({
-        "id": `${req.params.id}`
-      }) 
+      Key: marshall({ "id": req.params.id })
     };
+    
+    const { Item } = await DB.send(new GetItemCommand(params));
 
-    await DB.send(new GetItemCommand(params))
-    .then((response) => {
-      res.status(200).json({
-        data: unmarshall(response.Item),
-      });
-    })
-    .catch((err) => {
-      res.status(400).json({
-        error: err.message,
-      });
-    });
-}
-
-
-// exports.checkToken = async (req, res, next) => {
-//   try {
-//     let token;
-//   if (
-//     req.headers.authorization &&
-//     req.headers.authorization.startsWith('Bearer')
-//   ) {
-//     token = req.headers.authorization.split(' ')[1];
-//   }
-//   else if(req.cookies.jwt){
-//     token = req.cookies.jwt
-//   }
-//     var decoded = jwt.verify(token, process.env.privateKey);
-//     // Check IF user Still Exist in Database
-//     var params = {
-//       TableName: Table,
-//       Key: {
-//         "id": `${decoded.id}`
-//       }
-//     };
-//     await DB.get(params, function (err, data) {
-//       console.log(data.Item)
-//       res.status(200).json({
-//         data: data.Item
-//       });
-//     });
-
-//     // res.status(202).json({
-//     //   decoded
-//     // })
-//   } catch(err) {
-//     // err
-//     res.status(401).json({
-//       error: 'The user belonging to this token does no longer exist.'
-//     })
-//   }
-// }
+    if (Item) {
+      // User found, respond with the user data
+      res.status(200).json({ data: unmarshall(Item) });
+    } else {
+      // No user found, respond with a not found error message
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    // On error, respond with a server error message
+    console.error("getUser error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

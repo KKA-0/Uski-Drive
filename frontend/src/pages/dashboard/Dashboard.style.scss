@@ -11,6 +11,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: absolute;
+    left: 0;
 }   
 
 .sidebar_innner_container{
@@ -18,4 +20,10 @@
     height: 99%;
     background-color: rgb(44, 44, 44);
     border-radius: 0px 10px 10px 0px;
+}
+
+.files_container{
+    margin-left: 280px;
+    display: flex;
+    flex-wrap: wrap;
 }

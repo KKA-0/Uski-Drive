@@ -8,8 +8,5 @@ router
 router
     .route("/:id")
     .get(userController.getUser)
-// router
-//     .route("/token")    
-//     .get(userController.checkToken)
 
 module.exports = router
