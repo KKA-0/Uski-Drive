@@ -4,7 +4,7 @@ const filesController = require("./../Controller/files.controller")
 
 router
     .route("/:user_id")
-    .get(filesController.getUserFilesData)
+    .patch(filesController.getUserFilesData)
     .post(filesController.addFile)
     .delete(filesController.removeFile)
 

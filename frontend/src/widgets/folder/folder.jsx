@@ -3,20 +3,20 @@ import folder from "./folder.module.css";
 import { CiFolderOn, CiImageOn } from "react-icons/ci";
 import { FaRegFileZipper } from "react-icons/fa6";
 
-const Folder = ({ type, file_id }) => {
-  // console.log(item)
+const Folder = ({item}) => {
+  // console.log(item.type)
   return (
     <>
       <div className={folder.FolderDiv}>
         {
-          (type === "image/jpg" || type === "image/png") ? <CiImageOn color='black' size={"5em"} /> :
-          (type === "file/zip" || type === "file/rar") ? <FaRegFileZipper color='black' size={"5em"} /> :
-          (type === "folder") ? <CiFolderOn color='black' size={"5em"} /> :
+          (item.type === "image/jpg" || item.type === "image/png" || item.type === "image/jpeg") ? <CiImageOn color='black' size={"5em"} /> :
+          (item.type === "file/zip" || item.type === "file/rar") ? <FaRegFileZipper color='black' size={"5em"} /> :
+          (item.type === "folder") ? <CiFolderOn color='black' size={"5em"} /> :
           null
         }
         {/* <CiFolderOn color='black' size={"5em"}/> */}
         <span style={{fontSize: "14px"}}>
-          {file_id}
+          {item.file_name}
         </span>
       </div>
     </>

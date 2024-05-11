@@ -2,9 +2,7 @@ const { DB, Table, S3, Bucket, FilesTable } = require("./../AWS.Config")
 const { 
     GetItemCommand,
     PutItemCommand,
-    DeleteItemCommand,
-    ScanCommand,
-    UpdateItemCommand
+    QueryCommand
    } = require('@aws-sdk/client-dynamodb')
    
 const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb')
@@ -13,105 +11,52 @@ const { GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require("@aw
 const { getSignedUrl, putObjectURL } = require('@aws-sdk/s3-request-presigner');
 
 exports.getUserFilesData = async (req, res) => {
-    const params = {
-        TableName: FilesTable,
-        Key: marshall({
-          "user_id": `${req.params.user_id}`
-        }) 
-      };
-      await DB.send(new GetItemCommand(params))
-      .then((response) => {
-        res.status(200).json({
-          data: unmarshall(response.Item),
-        });
-      })
-      .catch((err) => {
-        res.status(400).json({
-          error: err.message,
-        });
-      });
+  
+  const params = {
+    TableName: "uski-drive-files-database",
+    IndexName: 'user_id-folder_id-index', // The name of the GSI you created
+    KeyConditionExpression: 'user_id = :userIdVal AND folder_id = :folderIdVal',
+    ExpressionAttributeValues: {
+      ':userIdVal': { S: req.params.user_id },
+      ':folderIdVal': { S: req.body.folder_id }
+    }
+  };
+  
+  try {
+    const command = new QueryCommand(params);
+    const data = await DB.send(command);
+    res.json(data.Items);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
+  }
 }
 
 exports.addFile = async (req, res) => {
-    // Fetch Current User Files Data
-      const params = {
-        TableName: FilesTable,
-        Key: marshall({
-          "user_id": `${req.params.user_id}`
-        }) 
-      };
-      try{
-            
-            await DB.send(new GetItemCommand(params))
-            .then((response) => {
-              // Add New File Object in Old Files Data
-              var filesData = unmarshall(response.Item)
-              filesData.files.push(req.body)
-              // Update the New Files Data to Database
-              const params = {
-                TableName: FilesTable,
-                Item: marshall(filesData)
-              }
-              // console.log(filesData)
-              DB.send(new PutItemCommand(params))
-              .then((response) => {
-                res.status(201).json({
-                  data: unmarshall(params.Item)
-                });
-              })
-              .catch((err) => {
-                res.status(400).json({
-                  error: err.message,
-                });
-              })
-            })
-
-            // res.status(200).json({
-            //   uploadURI: url
-            // })
-      }catch(err){
-          res.status(400).json({
-              Message: "Something went wrong!!"
-            })
-      }
-
+    const { type, file_id, file_name, path, folder_id } = req.body
+    const params = {
+      TableName: "uski-drive-files-database",
+      Item: marshall({
+        type, file_id, file_name, path: req.params.user_id+"/"+path, folder_id,
+        user_id: req.params.user_id
+      })
+    } 
+    console.log(params.Item)
+    try{
+      await DB.send(new PutItemCommand(params))
+      res.status(200).json({
+        Message: "Added!",
+      })
+    }
+    catch(err){
+      console.error(err)
+      res.status(500).json({
+        Error: "Something Went Wrong!",
+        message: err 
+      })
+    }
 }
 
 exports.removeFile = async (req, res) => {
-  // Fetch Current User Files Data
-  const params = {
-    TableName: FilesTable,
-    Key: marshall({
-      "user_id": `${req.params.user_id}`
-    }) 
-  };
-  await DB.send(new GetItemCommand(params))
-  .then(response => {
-    // Remove File Object in Old Files Data
-    var filesData = unmarshall(response.Item)
-    filesData.files = filesData.files.filter(item => item.file_id !== req.body.file_id);
-
-    // Update the New Files Data to Database
-    const params = {
-      TableName: FilesTable,
-      Item: marshall(filesData)
-    }
-    // console.log(filesData)
-    DB.send(new PutItemCommand(params))
-    .then((response) => {
-      res.status(201).json({
-        data: unmarshall(params.Item)
-      });
-    })
-    .catch((err) => {
-      res.status(400).json({
-        error: err.message,
-      });
-    })
-
-  }).catch(err => {
-    res.status(400).json({
-      error: err.message,
-    });
-  })
+  
 }

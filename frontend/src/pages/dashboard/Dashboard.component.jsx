@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './Dashboard.style.scss';
-import UploadFile from "./../../widgets/uploadFile/uploadFile"
 import useAuthentication from './../../hooks/private/useAuthentication';
 import Folder from "./../../widgets/folder/folder"
-import useData from "./../../hooks/data/useData"
 import axios from "axios"
 import { useDispatch, useSelector } from 'react-redux';
-import { AddFolder } from "./../../features/folderSlice"
+import { currentPath, AddFolder, AddFile, fetchData, fileId } from "./../../features/folderSlice"
 
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -17,26 +15,26 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import LinearProgress from '@mui/material/LinearProgress';
+import ButtonGroup from '@mui/material/ButtonGroup';
+
+import { unmarshall } from '@aws-sdk/util-dynamodb'
+
 
 const Dashboard = () => {
   const dispatch = useDispatch()
   const [LoadingCreateFolder, setLoadingCreateFolder] = useState(false)
-  const [userDataFiles, setUserDataFiles] = useState([]);
   const [openFolderDialog, setOpenFolderDialog] = React.useState(false);
   const [openFileDialog, setOpenFileDialog] = React.useState(false);
   const [imagePreview, setImagePreview] = useState(null); // State for storing image preview
   const [imagePreviewDialog, setImagePreviewDialog] = useState(false); // State for controlling image preview dialog
+  const [selectedFile, setSelectedFile] = useState(null);
   const user_id = useSelector((state) => state.user.user_id) 
+  const file_id = useSelector((state) => state.folders.file_id) 
+  const userDataFiles = useSelector((state) => state.folders.data) 
+  const currentPos = useSelector((state) => state.folders.currentPos) 
   const Addfolder = useRef(null);
 
   const isAuthenticated = useAuthentication();
-  const userData = useData();
-
-  useEffect(() => {
-    if (userData) {
-      setUserDataFiles(userData);
-    }
-  }, [userData]);
 
   if (!isAuthenticated) return null; // Render nothing if not authenticated
 
@@ -60,22 +58,32 @@ const Dashboard = () => {
 
   // Function to handle image preview
   const handleImagePreview = (file) => {
-    axios.patch('http://localhost:4000/upload', 
-    {
-      path: user_id+"/"+file.path,
-      type: file.type
-    } 
-     )
-    .then(function (response) {
-      // handle success
-      // console.log(response.data.fileURI);
-      setImagePreview(response.data.fileURI);
-      setImagePreviewDialog(true);
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    })
+    console.log(file)
+    if(file.type == "image/png" || file.type == "image/jpg" || file.type == "image/jpeg"){
+      axios.patch('http://localhost:4000/upload', 
+      {
+        path: file.path
+      } 
+       )
+      .then(function (response) {
+        // handle success
+        // console.log(response.data.fileURI);
+        setImagePreview(response.data.fileURI);
+        setImagePreviewDialog(true);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+    }else if(file.type == "folder"){
+      console.log("Its a Folder", file)
+      dispatch(currentPath({path: file.path}))
+      dispatch(fileId({file_id: file.file_id}))
+      dispatch(fetchData({"user_id": user_id, folder_id: file.file_id}))
+
+    }else{
+      console.log("Can't Preview or Open the File")
+    }
   };
 
   const handleCloseImagePreviewDialog = () => {
@@ -84,27 +92,66 @@ const Dashboard = () => {
   };
 
   const handleCreateFolder = () => {
-    setLoadingCreateFolder(true)
-    dispatch(AddFolder({user_id: user_id, folderName: Addfolder.current.value, path: user_id + "/" + Addfolder.current.value}))
+    setOpenFolderDialog(false);
+    dispatch(AddFolder({user_id: user_id, file_name: Addfolder.current.value, path: Addfolder.current.value, folder_id: file_id}))
+  }
+
+
+  const handleFileChange = event => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const uploadFile = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile, selectedFile.name);
+      dispatch(AddFile({user_id, selectedFile: selectedFile, folder_id: file_id}))
+      setOpenFileDialog(false);
+    } else {
+      console.log('No file selected');
+      // Handle no file selected here
+    }
+  };
+
+  const Home = () => {
+    dispatch(currentPath({path: "/"}))
+    dispatch(fetchData({"user_id": user_id, folder_id: "empty"}))
+    dispatch(fileId({file_id: "empty"}))
   }
 
   return (
     <div className='dashboard_container'>
       <div className='sidebar_container'>
         <div className='sidebar_innner_container'>
-          <button onClick={handleOpenFolderDialog}>Create Folder</button>
-          <button onClick={handleOpenFileDialog}>Add File</button>
+          <button class="buttons" onClick={handleOpenFolderDialog}>Create Folder</button>
+          <button class="buttons" onClick={handleOpenFileDialog}>Add File</button>
         </div>
       </div>
-      <div className='files_container'>
-      {/* <div className="path">Home/</div> */}
+      <div className=''>
+      <div className="path">
+      <ButtonGroup variant="outlined" aria-label="Basic button group">
+        <Button className="home" style={{cursor: "pointer"}} onClick={Home}>Home/</Button>
+        {
+          currentPos.map((path, index) => (
+            (index > 0) ? (
+              <Button key={index}>{path}</Button>
+            ) : (
+              null
+            )
+          ))
+        }
+        </ButtonGroup>  
+      </div>
+
+        <div className='files_container'>
         {
           userDataFiles.map((item, key) => (
-            <div onClick={() => handleImagePreview(item)}>
-              <Folder key={key} type={item.type} file_id={item.file_id} />
+            <div onClick={() => handleImagePreview(unmarshall(item))}>
+              <Folder key={key} item={unmarshall(item)} />
             </div>
           ))
         }
+        </div>
       </div>
       <Dialog
         open={openFolderDialog}
@@ -143,9 +190,9 @@ const Dashboard = () => {
         <DialogTitle>Add a new File</DialogTitle>
         <DialogContent>
         <DialogContentText>
-            Leave Empty for Save with Same name as file.
+            Select The File to Upload
           </DialogContentText>
-          <TextField
+          {/* <TextField
             autoFocus
             required
             margin="dense"
@@ -155,12 +202,12 @@ const Dashboard = () => {
             type="text"
             fullWidth
             variant="standard"
-          />
-          <input type="file" id="fileInput" name="fileInput" />
+          /> */}
+          <input type="file" id="fileInput" name="fileInput" onChange={handleFileChange}/>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseFileDialog}>Cancel</Button>
-          <Button type="submit">Upload</Button>
+          <Button type="submit" onClick={uploadFile}>Upload</Button>
         </DialogActions>
       </Dialog>
       <Dialog
