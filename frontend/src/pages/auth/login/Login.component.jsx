@@ -4,20 +4,39 @@ import { AiFillGithub, AiFillGoogleCircle } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
 import { useRef } from "react";
 import axios from 'axios'
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux"
+import { userData } from "./../../../features/userSlice"
 
 const Login = () => {
-
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
   const email = useRef("")
   const password = useRef("")
+
+  useEffect(() => {
+    let x = document.cookie; 
+    const token = x.split("=")
+    if(token[1]){
+      navigate("/dashboard");
+    }
+  }, [])
+
   const handleLoginSubmit = () => {
     
     if(email.current.value != "" && password.current.value != ""){
-      axios.post('/user', {
+      axios.post('http://localhost:4000/user', {
         email: email.current.value,
         password: password.current.value
       })
       .then(function (response) {
         console.log(response);
+        document.cookie = `token=${response.data.token}`; 
+        const user_id = response.data.user.id
+        console.log(user_id)
+        dispatch(userData({"user_id": user_id}))
+        navigate("/dashboard");
       })
       .catch(function (error) {
         console.log(error);

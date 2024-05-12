@@ -27,6 +27,8 @@ const Dashboard = () => {
   const [openFileDialog, setOpenFileDialog] = React.useState(false);
   const [imagePreview, setImagePreview] = useState(null); // State for storing image preview
   const [imagePreviewDialog, setImagePreviewDialog] = useState(false); // State for controlling image preview dialog
+  const [VideoPreview, setVideoPreview] = useState(null); // State for storing video preview
+  const [VideoPreviewDialog, setVideoPreviewDialog] = useState(false); // State for controlling video preview dialog
   const [selectedFile, setSelectedFile] = useState(null);
   const user_id = useSelector((state) => state.user.user_id) 
   const file_id = useSelector((state) => state.folders.file_id) 
@@ -81,7 +83,24 @@ const Dashboard = () => {
       dispatch(fileId({file_id: file.file_id}))
       dispatch(fetchData({"user_id": user_id, folder_id: file.file_id}))
 
-    }else{
+    }else if(file.type === "video/mp4"){
+      axios.patch('http://localhost:4000/upload', 
+      {
+        path: file.path
+      } 
+       )
+      .then(function (response) {
+        // handle success
+        // console.log(response.data.fileURI);
+        setVideoPreview(response.data.fileURI);
+        setVideoPreviewDialog(true);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+    }
+    else{
       console.log("Can't Preview or Open the File")
     }
   };
@@ -89,6 +108,11 @@ const Dashboard = () => {
   const handleCloseImagePreviewDialog = () => {
     // setImagePreview(null);
     setImagePreviewDialog(false);
+  };
+
+  const handleCloseVideoPreviewDialog = () => {
+    // setImagePreview(null);
+    setVideoPreviewDialog(false);
   };
 
   const handleCreateFolder = () => {
@@ -220,6 +244,22 @@ const Dashboard = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseImagePreviewDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={VideoPreviewDialog}
+        onClose={handleCloseVideoPreviewDialog}
+      >
+        <DialogTitle>Video Preview</DialogTitle>
+        <DialogContent>
+          <video width="400" controls>
+            <source src={VideoPreview} type="video/mp4" />
+            Your browser does not support HTML video.
+          </video>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseVideoPreviewDialog}>Close</Button>
         </DialogActions>
       </Dialog>
     </div>

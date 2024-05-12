@@ -89,11 +89,16 @@ const folderSlice = createSlice({
                 )
                   .then(function (response) {
                     // console.log(response.data.uploadURI)
-                    axios.put(response.data.uploadURI, formData, { // Assuming API is a constant that holds your endpoint
+                    axios.put(response.data.uploadURI, formData, {
                       headers: {
                         'Content-Type': formData.type
+                      },
+                      onUploadProgress: progressEvent => {
+                        const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+                        console.log(`Upload Progress: ${progress}%`);
                       }
                     })
+                    
                     .then((response) => {
                       axios.post(`http://localhost:4000/files/${user_id}`,
                       {
