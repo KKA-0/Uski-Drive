@@ -62,7 +62,7 @@ const Dashboard = () => {
   const handleImagePreview = (file) => {
     console.log(file)
     if(file.type == "image/png" || file.type == "image/jpg" || file.type == "image/jpeg"){
-      axios.patch('http://localhost:4000/upload', 
+      axios.patch(`${import.meta.env.VITE_APP_DOMAIN}/upload`, 
       {
         path: file.path
       } 
@@ -84,7 +84,7 @@ const Dashboard = () => {
       dispatch(fetchData({"user_id": user_id, folder_id: file.file_id}))
 
     }else if(file.type === "video/mp4"){
-      axios.patch('http://localhost:4000/upload', 
+      axios.patch(`${import.meta.env.VITE_APP_DOMAIN}/upload`, 
       {
         path: file.path
       } 

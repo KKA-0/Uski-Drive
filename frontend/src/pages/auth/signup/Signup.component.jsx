@@ -25,7 +25,7 @@ const Signup = () => {
 
   const handleSignupSubmit = () => {
     if(name_Signup.current.value !== "" || email_Signup.current.value !== "" || password_Signup.current.value !== ""){
-      axios.post(`http://localhost:4000/user`, {
+      axios.post(`${import.meta.env.VITE_APP_DOMAIN}/user`, {
         name: name_Signup.current.value,
         email: email_Signup.current.value,
         password: password_Signup.current.value

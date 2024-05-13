@@ -12,7 +12,7 @@ export const fetchData = createAsyncThunk(
   'folder/fetchData',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`http://localhost:4000/files/${data.user_id}`, {
+      const response = await axios.patch(`${import.meta.env.VITE_APP_DOMAIN}/files/${data.user_id}`, {
         folder_id: data.folder_id,
       });
       return response.data;
@@ -46,7 +46,7 @@ const folderSlice = createSlice({
           }
         })
         const file_id = uuidv4()
-        axios.post('http://localhost:4000/upload', {
+        axios.post(`${import.meta.env.VITE_APP_DOMAIN}/upload`, {
           path: user_id + "/" + NewPath + path + "/",
           type: "folder"
         })
@@ -54,7 +54,7 @@ const folderSlice = createSlice({
             axios.put(response.data.uploadURI)
             .then(function (response) {
                 // console.log("Folder Created !");
-                axios.post(`http://localhost:4000/files/${user_id}`,
+                axios.post(`${import.meta.env.VITE_APP_DOMAIN}/files/${user_id}`,
                   {
                     user_id, file_name, path: NewPath+path + "/", type: "folder", "folder_id": folder_id, file_id
                   }
@@ -81,7 +81,7 @@ const folderSlice = createSlice({
       const file_id = uuidv4()
       console.log(formData.type)
       try {
-        axios.post(`http://localhost:4000/upload`,
+        axios.post(`${import.meta.env.VITE_APP_DOMAIN}/upload`,
                     {
                       "path": user_id + "/" + formData.name,
                       "type": formData.type
@@ -100,7 +100,7 @@ const folderSlice = createSlice({
                     })
                     
                     .then((response) => {
-                      axios.post(`http://localhost:4000/files/${user_id}`,
+                      axios.post(`${import.meta.env.VITE_APP_DOMAIN}/files/${user_id}`,
                       {
                         "path": formData.name,
                         "type": formData.type,

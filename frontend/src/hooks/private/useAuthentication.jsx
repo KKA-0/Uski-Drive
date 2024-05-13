@@ -21,7 +21,7 @@ const useAuthentication = () => {
               Authorization: `Bearer ${token}`,
             },
           };
-          const response = await axios.get('http://localhost:4000/auth/token', axiosHead);
+          const response = await axios.get(`${import.meta.env.VITE_APP_DOMAIN}/auth/token`, axiosHead);
           // console.log(response);
           dispatch(userData({"user_id": response.data.data.id}))
           dispatch(fetchData({"user_id": response.data.data.id, folder_id: "empty"}))

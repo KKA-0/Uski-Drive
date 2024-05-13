@@ -26,7 +26,7 @@ const Login = () => {
   const handleLoginSubmit = () => {
     
     if(email.current.value != "" && password.current.value != ""){
-      axios.post('http://localhost:4000/user', {
+      axios.post(`${import.meta.env.VITE_APP_DOMAIN}/user`, {
         email: email.current.value,
         password: password.current.value
       })
