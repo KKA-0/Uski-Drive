@@ -20,6 +20,8 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 
+import { toast, ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 const Dashboard = () => {
   const dispatch = useDispatch()
@@ -118,6 +120,9 @@ const Dashboard = () => {
 
   const handleCreateFolder = () => {
     setOpenFolderDialog(false);
+    toast.success("Folder Created!", {
+      position: "top-center"
+    });
     dispatch(AddFolder({user_id: user_id, file_name: Addfolder.current.value, path: Addfolder.current.value, folder_id: file_id}))
   }
 
@@ -132,6 +137,9 @@ const Dashboard = () => {
       formData.append('file', selectedFile, selectedFile.name);
       dispatch(AddFile({user_id, selectedFile: selectedFile, folder_id: file_id}))
       setOpenFileDialog(false);
+      toast.info("File Upload Process is Started!", {
+        position: "top-center"
+      });
     } else {
       console.log('No file selected');
       // Handle no file selected here
@@ -145,6 +153,7 @@ const Dashboard = () => {
   }
 
   return (<>
+    <ToastContainer />
     <Navbar/>
     <div className='dashboard_container'>
       <div className='sidebar_container'>

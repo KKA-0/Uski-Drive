@@ -28,5 +28,5 @@ app.use('/', (req, res) => {
     res.send("Beep... Beep... 🤖")
 })
 
-// app.listen(port, () => console.log("Beep... Beep... 🤖", {port}))
-module.exports.handler = serverless(app);
+app.listen(port, () => console.log("Beep... Beep... 🤖", {port}))
+// module.exports.handler = serverless(app);
