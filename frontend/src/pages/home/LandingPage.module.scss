@@ -1,0 +1,189 @@
+.landingContainer {
+  font-family: 'Arial', sans-serif;
+
+  .landingHeader {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-align: center;
+    padding: 50px 20px;
+    animation: fadeInDown 1s;
+
+    h1 {
+      font-size: 2.5em;
+    }
+
+    .getStartedButton {
+      background-color: #fff;
+      color: #764ba2;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #e4e4e4;
+      }
+    }
+  }
+
+  .landingMain {
+    padding: 20px;
+
+    .aboutSection {
+      text-align: center;
+      margin: 50px 0;
+
+      h2 {
+        font-size: 2em;
+        margin-bottom: 20px;
+      }
+      p {
+        font-size: 1.2em;
+      }
+    }
+
+    .featureSection {
+      display: flex;
+      justify-content: space-around;
+      margin: 40px 0;
+      animation: fadeInUp 1s;
+
+      .feature {
+        width: 30%;
+        background: #552b9f;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+
+        h3 {
+          font-size: 1.5em;
+          margin-bottom: 15px;
+        }
+
+        p {
+          font-size: 1em;
+        }
+      }
+    }
+
+    .pricingSection {
+      text-align: center;
+      margin: 50px 0;
+      animation: fadeIn 1.5s;
+
+      h2 {
+        font-size: 2em;
+        margin-bottom: 20px;
+      }
+
+      .plans {
+        display: flex;
+        justify-content: space-around;
+
+        .plan {
+          width: 30%;
+          background: #552b9f;
+          padding: 20px;
+          border-radius: 8px;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.3s ease;
+
+          &:hover {
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+          }
+
+          h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+          }
+
+          p {
+            font-size: 1em;
+            margin-bottom: 20px;
+          }
+
+          button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+              background-color: #5568d9;
+            }
+          }
+        }
+      }
+    }
+
+    .contactSection {
+      text-align: center;
+      margin: 50px 0;
+      animation: fadeInUp 1.5s;
+
+      h2 {
+        font-size: 2em;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+
+      button {
+        background-color: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #5568d9;
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

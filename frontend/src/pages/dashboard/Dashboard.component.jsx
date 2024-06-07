@@ -5,6 +5,7 @@ import Folder from "./../../widgets/folder/folder"
 import axios from "axios"
 import { useDispatch, useSelector } from 'react-redux';
 import { currentPath, AddFolder, AddFile, fetchData, fileId } from "./../../features/folderSlice"
+import Navbar from "./../../components/header/Navbar.component"
 
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -143,7 +144,8 @@ const Dashboard = () => {
     dispatch(fileId({file_id: "empty"}))
   }
 
-  return (
+  return (<>
+    <Navbar/>
     <div className='dashboard_container'>
       <div className='sidebar_container'>
         <div className='sidebar_innner_container'>
@@ -263,6 +265,7 @@ const Dashboard = () => {
         </DialogActions>
       </Dialog>
     </div>
+    </>
   );
 };
 

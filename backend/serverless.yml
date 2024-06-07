@@ -13,3 +13,47 @@ functions:
     handler: index.handler
     events:
       - httpApi: '*'
+
+# resources:
+#   Resources:
+#     usersTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: test-db-users
+#         AttributeDefinitions:
+#           - AttributeName: id
+#             AttributeType: S
+#         KeySchema:
+#           - AttributeName: id
+#             KeyType: HASH
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
+
+#     filesTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: test-db-files
+#         AttributeDefinitions:
+#           - AttributeName: file_id
+#             AttributeType: S
+#           - AttributeName: folder_id
+#             AttributeType: S
+#         KeySchema:
+#           - AttributeName: file_id
+#             KeyType: HASH
+#         GlobalSecondaryIndexes:
+#           - IndexName: user-id-folder-id-index
+#             KeySchema:
+#               - AttributeName: file_id  # This was previously incorrectly as files_id
+#                 KeyType: HASH
+#               - AttributeName: folder_id
+#                 KeyType: RANGE
+#             Projection:
+#               ProjectionType: "ALL"
+#             ProvisionedThroughput:
+#               ReadCapacityUnits: 1
+#               WriteCapacityUnits: 1
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
