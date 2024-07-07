@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux"
 import { userData } from "./../../../features/userSlice"
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -39,8 +41,24 @@ const Login = () => {
         navigate("/dashboard");
       })
       .catch(function (error) {
-        console.log(error);
+        if(error.message){
+          const notify = () => {
+            toast.error("Password Incorrect", {
+              position: "top-right"
+            });
+          }
+          notify()
+        }
       });
+    }else{
+      
+      const notify = () => {
+        toast.error("Login credentials required", {
+          position: "top-right"
+        });
+      }
+      notify()
+      console.log("Values empty")
     }
 
   }

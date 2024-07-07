@@ -39,3 +39,21 @@
 .path{
     margin-left: 300px;
 }
+.folderDiv{
+    height: 150px;
+    width: 172px;
+    background-color: #3f3e3e;
+    margin: 5px;
+    border-radius: 15px;
+    position: relative;
+}
+.OptionsDiv{
+    position: absolute;
+    right: 5px;
+    bottom: 3px;
+    cursor: pointer;
+
+}
+.OptionsDiv:hover{
+    color: #a8a8a8;
+}

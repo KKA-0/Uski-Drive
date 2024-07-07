@@ -8,7 +8,7 @@ const LandingPage = () => {
       <header className={styles.landingHeader}>
         <h1>Welcome to Uski Drive</h1>
         <p>Your secure cloud storage solution.</p>
-        <Link to={"/signup"}><button className={styles.getStartedButton}>Get Started</button></Link>
+        <Link to={"/login"}><button className={styles.getStartedButton}>Get Started</button></Link>
       </header>
       <main className={styles.landingMain}>
         <section className={styles.aboutSection}>

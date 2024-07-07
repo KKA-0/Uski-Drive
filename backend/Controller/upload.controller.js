@@ -42,24 +42,16 @@ exports.getFileURL = async (req, res) => {
     }
 }
 
-exports.rvmFileURL = async (req, res) => {
-    
-    const { path } = req.body
+exports.rvmFileURL = async (path) => {
+    console.log(path)
     try{
         const command = new DeleteObjectCommand({
             Bucket: Bucket,
             Key: path
           })
           const response = await S3.send(command);
-          console.log(response)
-          res.status(204).json({
-            message: "File Deleted Successfully",
-            requestID: response.requestId
-          })
-          
+          return response
     }catch(err){
-        res.status(400).json({
-            Message: "Something went wrong!!"
-          })
+      console.log("Something went wrong!!") 
     }
 }

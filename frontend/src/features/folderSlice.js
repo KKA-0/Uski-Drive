@@ -1,11 +1,16 @@
 import { createSlice, createAsyncThunk, current  } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid';
+import { unmarshall, marshall } from '@aws-sdk/util-dynamodb'
+import { useDispatch } from 'react-redux';
+
+const dispatch = useDispatch()
 
 const initialState = {
     data: [],
     currentPos: ["/"],
-    file_id: "empty"
+    file_id: "empty",
+    folder_id: "empty"
 }
 
 export const fetchData = createAsyncThunk(
@@ -27,27 +32,23 @@ const folderSlice = createSlice({
     name: 'Folder',
     initialState,
     reducers: {
-      currentPath: (state, action) => {
-        const { path } = action.payload;
-        const pathArr = path.split("/");
-        state.currentPos = []; // Reset currentPos before filling it
-        pathArr.forEach((item) => {
-          state.currentPos.push(item); 
-        });
-      },      
+     currentPath: (state, action) => {
+      const { path } = action.payload;
+      const pathArr = path.split("/");
+      state.currentPos = []; // Reset currentPos before filling it
+      pathArr.forEach((item) => {
+        state.currentPos.push(item); 
+      });
+     },      
      AddFolder: (state, action) => {
         const { user_id, file_name, path, folder_id } = action.payload
         const currentPosArray = current(state.currentPos)
-        var NewPath = ""
-        currentPosArray.map((item, index) => {
-          if(index > 0 && index < currentPosArray.length - 1){
-            console.log(item, index)
-            NewPath = NewPath + item +"/" 
-          }
-        })
+        const FolderPath = currentPosArray.join("/") + file_name + "/"
         const file_id = uuidv4()
+        console.log(FolderPath)
+
         axios.post(`${import.meta.env.VITE_APP_DOMAIN}/upload`, {
-          path: user_id + "/" + NewPath + path + "/",
+          path: FolderPath,
           type: "folder"
         })
           .then(function (response) {
@@ -56,7 +57,7 @@ const folderSlice = createSlice({
                 // console.log("Folder Created !");
                 axios.post(`${import.meta.env.VITE_APP_DOMAIN}/files/${user_id}`,
                   {
-                    user_id, file_name, path: NewPath+path + "/", type: "folder", "folder_id": folder_id, file_id
+                    user_id, file_name, path: FolderPath, type: "folder", "folder_id": folder_id, file_id
                   }
                 )
                   .then(function (response) {
@@ -75,15 +76,14 @@ const folderSlice = createSlice({
           });
     },
     AddFile: (state, action) => {
-      console.log(action.payload.user_id)
-      const { user_id, selectedFile, folder_id } = action.payload
+      const { user_id, selectedFile, folder_id, currentPos } = action.payload
       const formData = action.payload.selectedFile
       const file_id = uuidv4()
-      console.log(formData.type)
+      const FilePath = currentPos.join("/")
       try {
         axios.post(`${import.meta.env.VITE_APP_DOMAIN}/upload`,
                     {
-                      "path": user_id + "/" + formData.name,
+                      "path": FilePath+formData.name,
                       "type": formData.type
                   }
                 )
@@ -102,7 +102,7 @@ const folderSlice = createSlice({
                     .then((response) => {
                       axios.post(`${import.meta.env.VITE_APP_DOMAIN}/files/${user_id}`,
                       {
-                        "path": formData.name,
+                        "path": FilePath+formData.name,
                         "type": formData.type,
                         "file_name": formData.name,
                         "folder_id": folder_id,
@@ -131,7 +131,17 @@ const folderSlice = createSlice({
     },
     fileId: (state, action) => {
       state.file_id = action.payload.file_id
-    }
+    },
+    removeFileState: (state, action) => {
+      console.warn(action.payload.file_id)
+      const file_id = action.payload.file_id
+      const files = current(state.data)
+      const data = files.map(item => unmarshall(item));
+      const result = data.filter(item => item.file_id !== file_id);
+      const newData = result.map(item => marshall(item));
+      state.data = newData
+    },
+    
     },
     extraReducers: (builder) => {
       builder
@@ -142,5 +152,5 @@ const folderSlice = createSlice({
     },
   })
   
-  export const { currentPath, AddFolder, AddFile, fileId } = folderSlice.actions
+  export const { currentPath, AddFolder, AddFile, fileId, removeFileState } = folderSlice.actions
   export default folderSlice.reducer

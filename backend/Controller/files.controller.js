@@ -2,13 +2,16 @@ const { DB, Table, S3, Bucket, FilesTable } = require("./../AWS.Config")
 const { 
     GetItemCommand,
     PutItemCommand,
-    QueryCommand
+    QueryCommand,
+    DeleteItemCommand
    } = require('@aws-sdk/client-dynamodb')
    
 const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb')
 
 const { GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl, putObjectURL } = require('@aws-sdk/s3-request-presigner');
+
+const { rvmFileURL } = require("./upload.controller")
 
 exports.getUserFilesData = async (req, res) => {
   
@@ -37,7 +40,7 @@ exports.addFile = async (req, res) => {
     const params = {
       TableName: "uski-drive-files-database",
       Item: marshall({
-        type, file_id, file_name, path: req.params.user_id+"/"+path, folder_id,
+        type, file_id, file_name, path: path, folder_id,
         user_id: req.params.user_id
       })
     } 
@@ -49,7 +52,6 @@ exports.addFile = async (req, res) => {
       })
     }
     catch(err){
-      console.error(err)
       res.status(500).json({
         Error: "Something Went Wrong!",
         message: err 
@@ -58,5 +60,33 @@ exports.addFile = async (req, res) => {
 }
 
 exports.removeFile = async (req, res) => {
-  
+  const user_id = req.params.user_id
+  const { type, file_id, path } = req.body
+  console.log(req.body)
+  try{
+  const S3Result = await rvmFileURL(path)
+  if(S3Result && S3Result.$metadata && S3Result.$metadata.httpStatusCode === 204){
+    // File is Deleted from S3
+    const params = {
+      TableName: "uski-drive-files-database",
+      Key: marshall({
+        file_id: file_id
+        }),
+      };
+      await DB.send(new DeleteItemCommand(params))
+      res.status(200).json({
+        Message: "Deleted!",
+      })
+    }else{
+      res.status(400).json({
+        Message: "File Delete from S3 Failed"
+      })
+    }
+    }catch(err){
+      res.status(500).json({
+        Error: "Something Went Wrong!",
+        message: err 
+      })
+    }
+
 }

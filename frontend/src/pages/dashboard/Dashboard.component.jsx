@@ -6,6 +6,7 @@ import axios from "axios"
 import { useDispatch, useSelector } from 'react-redux';
 import { currentPath, AddFolder, AddFile, fetchData, fileId } from "./../../features/folderSlice"
 import Navbar from "./../../components/header/Navbar.component"
+import Option from "./../../widgets/option/option"
 
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -17,6 +18,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import LinearProgress from '@mui/material/LinearProgress';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import { PiDotsThreeCircleFill } from "react-icons/pi";
 
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 
@@ -38,10 +40,15 @@ const Dashboard = () => {
   const userDataFiles = useSelector((state) => state.folders.data) 
   const currentPos = useSelector((state) => state.folders.currentPos) 
   const Addfolder = useRef(null);
+  const [displayOptionIndex, setDisplayOptionIndex] = useState(null);
 
   const isAuthenticated = useAuthentication();
-
+  
   if (!isAuthenticated) return null; // Render nothing if not authenticated
+  
+  const handleOptionClick = (key) => {
+    setDisplayOptionIndex(prevIndex => (prevIndex === key ? null : key));
+  };
 
   const handleOpenFolderDialog = (e) => {
     e.preventDefault();
@@ -135,7 +142,7 @@ const Dashboard = () => {
     if (selectedFile) {
       const formData = new FormData();
       formData.append('file', selectedFile, selectedFile.name);
-      dispatch(AddFile({user_id, selectedFile: selectedFile, folder_id: file_id}))
+      dispatch(AddFile({user_id, selectedFile: selectedFile, folder_id: file_id, currentPos}))
       setOpenFileDialog(false);
       toast.info("File Upload Process is Started!", {
         position: "top-center"
@@ -152,6 +159,18 @@ const Dashboard = () => {
     dispatch(fileId({file_id: "empty"}))
   }
 
+  const ChangeUserPath = (index) => {
+    const FolderPath = currentPosArray.slice(0, index + 1).join("/")
+    console.log(FolderPath)
+    // dispatch(currentPath({path: path}))
+    // dispatch(fetchData({"user_id": user_id, folder_id: "empty"}))
+    // dispatch(fileId({file_id: "empty"}))
+  }
+
+  const setDisplay = key => {
+    handleOptionClick(key)
+  }
+
   return (<>
     <ToastContainer />
     <Navbar/>
@@ -165,11 +184,11 @@ const Dashboard = () => {
       <div className=''>
       <div className="path">
       <ButtonGroup variant="outlined" aria-label="Basic button group">
-        <Button className="home" style={{cursor: "pointer"}} onClick={Home}>Home/</Button>
+        <Button className="home" style={{cursor: "pointer"}} onClick={Home}>Home</Button>
         {
           currentPos.map((path, index) => (
             (index > 0) ? (
-              <Button key={index}>{path}</Button>
+              <Button style={{cursor: "pointer"}} onClick={() => ChangeUserPath(index)} key={index}>{path}</Button>
             ) : (
               null
             )
@@ -181,9 +200,19 @@ const Dashboard = () => {
         <div className='files_container'>
         {
           userDataFiles.map((item, key) => (
-            <div onClick={() => handleImagePreview(unmarshall(item))}>
-              <Folder key={key} item={unmarshall(item)} />
-            </div>
+            <React.Fragment key={key}>
+              <div className="folderDiv">
+                <div onClick={() => handleImagePreview(unmarshall(item))}>
+                  <Folder item={unmarshall(item)} />
+                </div>
+                <PiDotsThreeCircleFill
+                  className='OptionsDiv'
+                  onClick={() => handleOptionClick(key)}
+                  size={"2em"}
+                />
+                {displayOptionIndex === key && <Option display={true} setDisplay={setDisplay} item={item} index={key}/>}
+              </div>
+            </React.Fragment>
           ))
         }
         </div>

@@ -17,7 +17,7 @@ const Folder = ({item}) => {
           null
         }
         {/* <CiFolderOn color='black' size={"5em"}/> */}
-        <span style={{fontSize: "14px"}}>
+        <span style={{fontSize: "10px"}}>
           {item.file_name}
         </span>
       </div>
