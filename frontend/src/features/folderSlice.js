@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk, current  } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid';
 import { unmarshall, marshall } from '@aws-sdk/util-dynamodb'
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 
-const dispatch = useDispatch()
+// const dispatch = useDispatch()
 
 const initialState = {
     data: [],
@@ -76,7 +76,7 @@ const folderSlice = createSlice({
           });
     },
     AddFile: (state, action) => {
-      const { user_id, selectedFile, folder_id, currentPos } = action.payload
+      const { user_id, folder_id, currentPos } = action.payload
       const formData = action.payload.selectedFile
       const file_id = uuidv4()
       const FilePath = currentPos.join("/")

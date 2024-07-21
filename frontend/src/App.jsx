@@ -18,7 +18,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/" element={<Home />} />{/* Assuming you want / to redirect to Home */}
+          <Route path="/" element={<Home />} />
         </Routes>
         {/* <Footer /> */}
       </div>
