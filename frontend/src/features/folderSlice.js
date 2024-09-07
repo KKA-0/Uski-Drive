@@ -43,7 +43,7 @@ const folderSlice = createSlice({
      AddFolder: (state, action) => {
         const { user_id, file_name, path, folder_id } = action.payload
         const currentPosArray = current(state.currentPos)
-        const FolderPath = currentPosArray.join("/") + file_name + "/"
+        const FolderPath = user_id + currentPosArray.join("/") + file_name + "/"
         const file_id = uuidv4()
         console.log(FolderPath)
 
