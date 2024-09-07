@@ -16,7 +16,7 @@ const { rvmFileURL } = require("./upload.controller")
 exports.getUserFilesData = async (req, res) => {
   
   const params = {
-    TableName: "uski-drive-files-database",
+    TableName: FilesTable,
     IndexName: 'user_id-folder_id-index', // The name of the GSI you created
     KeyConditionExpression: 'user_id = :userIdVal AND folder_id = :folderIdVal',
     ExpressionAttributeValues: {
@@ -38,7 +38,7 @@ exports.getUserFilesData = async (req, res) => {
 exports.addFile = async (req, res) => {
     const { type, file_id, file_name, path, folder_id } = req.body
     const params = {
-      TableName: "uski-drive-files-database",
+      TableName: FilesTable,
       Item: marshall({
         type, file_id, file_name, path: path, folder_id,
         user_id: req.params.user_id
@@ -68,7 +68,7 @@ exports.removeFile = async (req, res) => {
   if(S3Result && S3Result.$metadata && S3Result.$metadata.httpStatusCode === 204){
     // File is Deleted from S3
     const params = {
-      TableName: "uski-drive-files-database",
+      TableName: FilesTable,
       Key: marshall({
         file_id: file_id
         }),
