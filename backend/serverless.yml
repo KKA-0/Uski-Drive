@@ -1,7 +1,6 @@
-org: kka67
-app: backend
-service: backend
-frameworkVersion: '3'
+app: uski-drive-1
+service: uski-drive-backend-1
+frameworkVersion: '4'
 
 provider:
   name: aws
