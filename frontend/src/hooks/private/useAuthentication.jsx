@@ -13,7 +13,14 @@ const useAuthentication = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = document.cookie.split('=')[1];
+        const cookies = document.cookie
+        .split("; ")
+        .reduce((acc, cookie) => {
+          const [key, value] = cookie.split("=");
+          acc[key] = value;
+          return acc;
+        }, {});
+        const token = cookies.token; // Find the token cookie
         if (token) {
           const axiosHead = {
             headers: {

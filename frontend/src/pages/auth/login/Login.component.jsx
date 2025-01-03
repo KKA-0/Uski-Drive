@@ -18,9 +18,15 @@ const Login = () => {
   const password = useRef("")
 
   useEffect(() => {
-    let x = document.cookie; 
-    const token = x.split("=")
-    if(token[1]){
+    const cookies = document.cookie
+    .split("; ")
+    .reduce((acc, cookie) => {
+      const [key, value] = cookie.split("=");
+      acc[key] = value;
+      return acc;
+    }, {});
+    const token = cookies.token; // Find the token cookie
+    if (token) {
       navigate("/dashboard");
     }
   }, [])
