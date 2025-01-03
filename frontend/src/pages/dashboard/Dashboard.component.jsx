@@ -8,6 +8,7 @@ import { currentPath, AddFolder, AddFile, fetchData, fileId } from "./../../feat
 import Navbar from "./../../components/header/Navbar.component"
 import Option from "./../../widgets/option/option"
 
+import { FolderPlus } from 'lucide-react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -19,21 +20,37 @@ import Stack from '@mui/material/Stack';
 import LinearProgress from '@mui/material/LinearProgress';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { PiDotsThreeCircleFill } from "react-icons/pi";
+import Box from '@mui/material/Box';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
 
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
+// Styled component for the upload button
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
+
 const Dashboard = () => {
   const dispatch = useDispatch()
   const [LoadingCreateFolder, setLoadingCreateFolder] = useState(false)
   const [openFolderDialog, setOpenFolderDialog] = React.useState(false);
   const [openFileDialog, setOpenFileDialog] = React.useState(false);
-  const [imagePreview, setImagePreview] = useState(null); // State for storing image preview
-  const [imagePreviewDialog, setImagePreviewDialog] = useState(false); // State for controlling image preview dialog
-  const [VideoPreview, setVideoPreview] = useState(null); // State for storing video preview
-  const [VideoPreviewDialog, setVideoPreviewDialog] = useState(false); // State for controlling video preview dialog
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviewDialog, setImagePreviewDialog] = useState(false);
+  const [VideoPreview, setVideoPreview] = useState(null);
+  const [VideoPreviewDialog, setVideoPreviewDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const user_id = useSelector((state) => state.user.user_id) 
   const file_id = useSelector((state) => state.folders.file_id) 
@@ -44,7 +61,7 @@ const Dashboard = () => {
 
   const isAuthenticated = useAuthentication();
   
-  if (!isAuthenticated) return null; // Render nothing if not authenticated
+  if (!isAuthenticated) return null;
   
   const handleOptionClick = (key) => {
     setDisplayOptionIndex(prevIndex => (prevIndex === key ? null : key));
@@ -66,9 +83,9 @@ const Dashboard = () => {
 
   const handleCloseFileDialog = () => {
     setOpenFileDialog(false);
+    setSelectedFile(null);
   };
 
-  // Function to handle image preview
   const handleImagePreview = (file) => {
     console.log(file)
     if(file.type == "image/png" || file.type == "image/jpg" || file.type == "image/jpeg"){
@@ -78,13 +95,10 @@ const Dashboard = () => {
       } 
        )
       .then(function (response) {
-        // handle success
-        // console.log(response.data.fileURI);
         setImagePreview(response.data.fileURI);
         setImagePreviewDialog(true);
       })
       .catch(function (error) {
-        // handle error
         console.log(error);
       })
     }else if(file.type == "folder"){
@@ -100,13 +114,10 @@ const Dashboard = () => {
       } 
        )
       .then(function (response) {
-        // handle success
-        // console.log(response.data.fileURI);
         setVideoPreview(response.data.fileURI);
         setVideoPreviewDialog(true);
       })
       .catch(function (error) {
-        // handle error
         console.log(error);
       })
     }
@@ -116,12 +127,10 @@ const Dashboard = () => {
   };
 
   const handleCloseImagePreviewDialog = () => {
-    // setImagePreview(null);
     setImagePreviewDialog(false);
   };
 
   const handleCloseVideoPreviewDialog = () => {
-    // setImagePreview(null);
     setVideoPreviewDialog(false);
   };
 
@@ -133,7 +142,6 @@ const Dashboard = () => {
     dispatch(AddFolder({user_id: user_id, file_name: Addfolder.current.value, path: Addfolder.current.value, folder_id: file_id}))
   }
 
-
   const handleFileChange = event => {
     setSelectedFile(event.target.files[0]);
   };
@@ -144,12 +152,14 @@ const Dashboard = () => {
       formData.append('file', selectedFile, selectedFile.name);
       dispatch(AddFile({user_id, selectedFile: selectedFile, folder_id: file_id, currentPos}))
       setOpenFileDialog(false);
+      setSelectedFile(null);
       toast.info("File Upload Process is Started!", {
         position: "top-center"
       });
     } else {
-      console.log('No file selected');
-      // Handle no file selected here
+      toast.error("Please select a file first", {
+        position: "top-center"
+      });
     }
   };
 
@@ -162,9 +172,6 @@ const Dashboard = () => {
   const ChangeUserPath = (index) => {
     const FolderPath = currentPosArray.slice(0, index + 1).join("/")
     console.log(FolderPath)
-    // dispatch(currentPath({path: path}))
-    // dispatch(fetchData({"user_id": user_id, folder_id: "empty"}))
-    // dispatch(fileId({file_id: "empty"}))
   }
 
   const setDisplay = key => {
@@ -177,8 +184,8 @@ const Dashboard = () => {
     <div className='dashboard_container'>
       <div className='sidebar_container'>
         <div className='sidebar_innner_container'>
-          <button class="buttons" onClick={handleOpenFolderDialog}>Create Folder</button>
-          <button class="buttons" onClick={handleOpenFileDialog}>Add File</button>
+          <button className="buttons" onClick={handleOpenFolderDialog}>Create Folder</button>
+          <button className="buttons" onClick={handleOpenFileDialog}>Add File</button>
         </div>
       </div>
       <div className=''>
@@ -220,60 +227,153 @@ const Dashboard = () => {
       <Dialog
         open={openFolderDialog}
         onClose={handleCloseFolderDialog}
+        maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle>Name the Folder you want to create</DialogTitle>
+        <DialogTitle sx={{ 
+          borderBottom: 1, 
+          borderColor: 'divider',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1
+        }}>
+          <FolderPlus className="text-blue-500" size={24} />
+          Create New Folder
+        </DialogTitle>
         <DialogContent>
-          <TextField
-            inputRef={Addfolder}
-            autoFocus
-            required
-            margin="dense"
-            id="folderName"
-            name="folderName"
-            label="Folder Name"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
+          <Box sx={{ 
+            mt: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            p: 3,
+            border: '2px dashed',
+            borderColor: 'primary.main',
+            borderRadius: 1,
+            bgcolor: 'background.paper',
+          }}>
+            <DialogContentText sx={{ mb: 2 }}>
+              Enter a name for your new folder. Use a descriptive name to help you organize your files better.
+            </DialogContentText>
+            <TextField
+              inputRef={Addfolder}
+              autoFocus
+              required
+              label="Folder Name"
+              variant="outlined"
+              fullWidth
+              placeholder="My New Folder"
+              InputProps={{
+                sx: { 
+                  borderRadius: 1,
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                  },
+                }
+              }}
+            />
+          </Box>
         </DialogContent>
-        {
-          (LoadingCreateFolder) ? 
-        <Stack sx={{ width: '100%', color: 'grey.500' }} spacing={2}>
-          <LinearProgress color="success" />
-        </Stack> : null
-        }
-        <DialogActions>
-          <Button onClick={handleCloseFolderDialog}>Cancel</Button>
-          <Button type="submit" onClick={handleCreateFolder}>Create</Button>
+        {LoadingCreateFolder && (
+          <Box sx={{ px: 3 }}>
+            <Stack sx={{ width: '100%', color: 'primary.main' }} spacing={2}>
+              <LinearProgress color="primary" />
+            </Stack>
+          </Box>
+        )}
+        <DialogActions sx={{ 
+          p: 2, 
+          borderTop: 1, 
+          borderColor: 'divider',
+          gap: 1
+        }}>
+          <Button 
+            onClick={handleCloseFolderDialog} 
+            color="inherit"
+            sx={{ px: 3 }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleCreateFolder}
+            variant="contained"
+            startIcon={<FolderPlus size={20} />}
+            sx={{ px: 3 }}
+          >
+            Create Folder
+          </Button>
         </DialogActions>
       </Dialog>
+      
+      {/* Enhanced File Upload Dialog */}
       <Dialog
         open={openFileDialog}
         onClose={handleCloseFileDialog}
+        maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle>Add a new File</DialogTitle>
+        <DialogTitle sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          Upload File
+        </DialogTitle>
         <DialogContent>
-        <DialogContentText>
-            Select The File to Upload
-          </DialogContentText>
-          {/* <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="fileName"
-            name="fileName"
-            label="File Name"
-            type="text"
-            fullWidth
-            variant="standard"
-          /> */}
-          <input type="file" id="fileInput" name="fileInput" onChange={handleFileChange}/>
+          <Box sx={{ 
+            mt: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+            p: 3,
+            border: '2px dashed',
+            borderColor: 'primary.main',
+            borderRadius: 1,
+            bgcolor: 'background.paper',
+          }}>
+            <Button
+              component="label"
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+              sx={{ mb: 2 }}
+            >
+              Choose File
+              <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+            </Button>
+            {selectedFile && (
+              <Box sx={{ 
+                width: '100%',
+                p: 2,
+                bgcolor: 'grey.50',
+                borderRadius: 1,
+                textAlign: 'center'
+              }}>
+                <DialogContentText>
+                  Selected file: {selectedFile.name}
+                </DialogContentText>
+                <DialogContentText variant="body2" color="text.secondary">
+                  Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                </DialogContentText>
+              </Box>
+            )}
+            {!selectedFile && (
+              <DialogContentText sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                Drag and drop a file here or click the button above
+              </DialogContentText>
+            )}
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseFileDialog}>Cancel</Button>
-          <Button type="submit" onClick={uploadFile}>Upload</Button>
+        <DialogActions sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
+          <Button onClick={handleCloseFileDialog} color="inherit">
+            Cancel
+          </Button>
+          <Button 
+            onClick={uploadFile}
+            variant="contained"
+            disabled={!selectedFile}
+          >
+            Upload
+          </Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
         open={imagePreviewDialog}
         onClose={handleCloseImagePreviewDialog}
