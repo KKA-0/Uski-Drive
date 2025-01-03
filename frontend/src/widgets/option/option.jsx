@@ -20,7 +20,8 @@ const Option = ({display, item, setDisplay, index}) => {
         data: {
           path: items.path,
           file_id: items.file_id,
-          type: items.type
+          type: items.type,
+          folder_id: items.folder_id
         }
       })
       .then(response => {
