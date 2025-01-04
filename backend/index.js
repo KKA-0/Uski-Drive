@@ -25,7 +25,7 @@ app.use('/upload', uploadRoute)
 app.use('/auth', authRoute)
 app.use('/user', userRoute)
 app.use('/', (req, res) => {
-    res.send("Beep... Beep... 🤖")
+    res.send("Beep... Beep... 🤖 hehe")
 })
 
 //app.listen(port, () => console.log("Beep... Beep... 🤖", {port}))
