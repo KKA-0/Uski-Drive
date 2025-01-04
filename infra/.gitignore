@@ -38,5 +38,5 @@ override.tf.json
 terraform.rc
 
 # Ignore Archieve
-backend.zip
+*.zip
 .DS_Store
