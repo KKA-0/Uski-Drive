@@ -7,11 +7,14 @@ terraform {
   }
 
   cloud {
-
     organization = "jadonharsh"
 
     workspaces {
       name = "uskidrive"
     }
   }
+}
+
+provider "aws" {
+  region = var.aws_region
 }

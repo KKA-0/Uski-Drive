@@ -1,0 +1,6 @@
+aws_region           = "ap-south-1"
+lambda_function_name = "uski-drive-modified"
+lambda_role_name     = "iam_for_lambda"
+lambda_runtime       = "nodejs18.x"
+handler_name         = "index.handler"
+source_code_filename = "function.zip"
