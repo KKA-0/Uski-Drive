@@ -3,6 +3,15 @@ variable "aws_region" {
   type        = string
 }
 
+variable "access_key" {
+  description = "The AWS Access Key to deploy resources in."
+  type        = string
+}
+variable "secret_key" {
+  description = "The AWS Secret Key to deploy resources in."
+  type        = string
+}
+
 variable "lambda_function_name" {
   description = "The name of the Lambda function."
   type        = string
