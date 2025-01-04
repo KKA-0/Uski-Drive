@@ -10,7 +10,7 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 //   }
 // }
 const AWSconfig = {
-  region: process.env.region,
+  region: process.env.region
 }
 
 const S3 = new S3Client(AWSconfig)

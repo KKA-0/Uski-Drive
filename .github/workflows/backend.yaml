@@ -1,0 +1,76 @@
+name: "BackEnd CI/CD"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/**"
+      - "infra/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/**"
+      - "infra/**"
+
+jobs:
+  Deployment:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    
+    steps:
+      - name: "Git Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Create .env file
+        run: |
+          echo 'region="ap-south-1"' >> .env
+          echo 'privateKey="supper-se-be-upper"' >> .env
+          echo 'Table="test-db-users"' >> .env
+          echo 'Bucket="uski-drive-user-files"' >> .env
+          echo 'FilesTable="uski-drive-userFiles"' >> .env
+
+      - name: "Install Dependencies"
+        run: npm install
+
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
+      - name: Zip output
+        run: |
+          zip -qq -r ../infra/function.zip .
+
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TERRAFORM_ORG_TOKEN }}
+
+      - name: "Terraform Init"
+        run: terraform init
+        working-directory: infra
+      
+      - name: "Terraform Plan"
+        run: terraform plan
+        working-directory: infra
+
+      - name: "Terraform Apply"
+        run: terraform apply -auto-approve
+        working-directory: infra
+
+
+
+                
