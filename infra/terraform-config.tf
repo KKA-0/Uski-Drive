@@ -7,10 +7,10 @@ terraform {
   }
 
   cloud {
-    organization = "jadonharsh"
+    organization = "Quantgam"
 
     workspaces {
-      name = "uskidrive"
+      name = "UskiDrive"
     }
   }
 }
