@@ -10,12 +10,14 @@ on:
     paths:
       - "backend/**"
       - ".github/**"
+      - "infra/**"
   push:
     branches:
       - main
     paths:
       - "backend/**"
       - ".github/**"
+      - "infra/**"
 
 jobs:
   Deployment:
