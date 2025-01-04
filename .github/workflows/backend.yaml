@@ -48,7 +48,7 @@ jobs:
 
       - name: Zip output
         run: |
-          zip -qq -r ../infra/lambda/function.zip .
+          zip -qq -r ../infra/function.zip .
 
       - name: "Setup Terraform"
         uses: hashicorp/setup-terraform@v3
@@ -57,15 +57,15 @@ jobs:
 
       - name: "Terraform Init"
         run: terraform init
-        working-directory: infra/lambda
+        working-directory: infra
       
       - name: "Terraform Plan"
         run: terraform plan
-        working-directory: infra/lambda
+        working-directory: infra
 
       - name: "Terraform Apply"
         run: terraform apply -auto-approve
-        working-directory: infra/lambda
+        working-directory: infra
 
 
 
