@@ -38,11 +38,11 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "region=ap-south-1" >> .env
-          echo "privateKey=supper-se-be-upper" >> .env
-          echo "Table=test-db-users" >> .env
-          echo "Bucket=uski-drive-user-files" >> .env
-          echo "FilesTable=uski-drive-userFiles" >> .env
+          echo 'region="ap-south-1"' >> .env
+          echo 'privateKey="supper-se-be-upper"' >> .env
+          echo 'Table="test-db-users"' >> .env
+          echo 'Bucket="uski-drive-user-files"' >> .env
+          echo 'FilesTable="uski-drive-userFiles"' >> .env
 
       - name: "Install Dependencies"
         run: npm install
