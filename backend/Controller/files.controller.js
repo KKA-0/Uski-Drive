@@ -60,34 +60,37 @@ exports.addFile = async (req, res) => {
 }
 
 exports.removeFile = async (req, res) => {
-  const user_id = req.params.user_id
-  const { type, file_id, path } = req.body
-  console.log(req.body)
+  const user_id = req.params.user_id;
+  const { type, file_id, folder_id, path } = req.body; // Ensure folder_id is passed in the request
+  console.log("Request body:", req.body);
+
   try {
-    const S3Result = await rvmFileURL(path)
+    const S3Result = await rvmFileURL(path);
     if (S3Result && S3Result.$metadata && S3Result.$metadata.httpStatusCode === 204) {
-      // File is Deleted from S3
+      // File is deleted from S3
       const params = {
         TableName: FilesTable,
-        Item: marshall({
-          file_id: file_id
+        Key: marshall({
+          file_id: file_id,   // Partition key
+          folder_id: folder_id, // Sort key
         }),
       };
-      await DB.send(new DeleteItemCommand(params))
+      console.log("Params for DeleteItemCommand:", params);
+
+      await DB.send(new DeleteItemCommand(params));
       res.status(200).json({
         Message: "Deleted!",
-      })
-    }
-    else {
+      });
+    } else {
       res.status(400).json({
-        Message: "File Delete from S3 Failed"
-      })
+        Message: "File delete from S3 failed",
+      });
     }
   } catch (err) {
+    console.error("Error in removeFile:", err);
     res.status(500).json({
-      Error: "Something Went Wrong!",
-      message: err
-    })
+      Error: "Something went wrong!",
+      message: err.message,
+    });
   }
-
-}
+};
