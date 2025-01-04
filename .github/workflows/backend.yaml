@@ -9,11 +9,13 @@ on:
       - main
     paths:
       - "backend/**"
+      - ".github/**"
   push:
     branches:
       - main
     paths:
       - "backend/**"
+      - ".github/**"
 
 jobs:
   Deployment:
