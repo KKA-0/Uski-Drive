@@ -21,6 +21,7 @@ resource "aws_lambda_function" "test_lambda" {
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = var.handler_name
   runtime       = var.lambda_runtime
+  timeout       = 30
 
   # Specify the location of your backend.zip after upload
   filename         = var.source_code_filename
