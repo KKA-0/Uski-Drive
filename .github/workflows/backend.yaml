@@ -57,15 +57,15 @@ jobs:
 
       - name: "Terraform Init"
         run: terraform init
-        working-directory: ../infra/lambda
+        working-directory: infra/lambda
       
       - name: "Terraform Plan"
         run: terraform plan
-        working-directory: ../infra/lambda
+        working-directory: infra/lambda
 
       - name: "Terraform Apply"
         run: terraform apply -auto-approve
-        working-directory: ../infra/lambda
+        working-directory: infra/lambda
 
 
 
