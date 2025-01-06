@@ -18,6 +18,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: frontend
 
     steps:
     - name: Checkout code
@@ -60,6 +64,9 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
