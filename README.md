@@ -1,4 +1,3 @@
-![image](https://github.com/user-attachments/assets/bfc63f02-d279-43f1-a520-4c496f69dc4c)
 <p align="center"><h1 align="center">USKI-DRIVE.GIT</h1></p>
 
 ##  Table of Contents
