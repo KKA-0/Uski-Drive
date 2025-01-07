@@ -4,9 +4,11 @@ import useAuthentication from './../../hooks/private/useAuthentication';
 import Folder from "./../../widgets/folder/folder"
 import axios from "axios"
 import { useDispatch, useSelector } from 'react-redux';
-import { currentPath, AddFolder, AddFile, fetchData, fileId } from "./../../features/folderSlice"
+import { currentPath, addNewfolder, fetchData, fileId } from "./../../features/folderSlice"
+import { addNewfile } from "./../../features/folderSlice"
 import Navbar from "./../../components/header/Navbar.component"
 import Option from "./../../widgets/option/option"
+import { CircularProgress, Typography } from "@mui/material";
 
 import { FolderPlus } from 'lucide-react';
 import Button from '@mui/material/Button';
@@ -56,6 +58,7 @@ const Dashboard = () => {
   const file_id = useSelector((state) => state.folders.file_id) 
   const userDataFiles = useSelector((state) => state.folders.data) 
   const currentPos = useSelector((state) => state.folders.currentPos) 
+  const uploads = useSelector((state) => state.folders.uploads) 
   const Addfolder = useRef(null);
   const [displayOptionIndex, setDisplayOptionIndex] = useState(null);
 
@@ -139,7 +142,7 @@ const Dashboard = () => {
     toast.success("Folder Created!", {
       position: "top-center"
     });
-    dispatch(AddFolder({user_id: user_id, file_name: Addfolder.current.value, path: Addfolder.current.value, folder_id: file_id}))
+    dispatch(addNewfolder({user_id: user_id, file_name: Addfolder.current.value, path: Addfolder.current.value, folder_id: file_id}))
   }
 
   const handleFileChange = event => {
@@ -150,7 +153,7 @@ const Dashboard = () => {
     if (selectedFile) {
       const formData = new FormData();
       formData.append('file', selectedFile, selectedFile.name);
-      dispatch(AddFile({user_id, selectedFile: selectedFile, folder_id: file_id, currentPos}))
+      dispatch(addNewfile({user_id, selectedFile: selectedFile, folder_id: file_id, currentPos}))
       setOpenFileDialog(false);
       setSelectedFile(null);
       toast.info("File Upload Process is Started!", {
@@ -178,6 +181,39 @@ const Dashboard = () => {
     handleOptionClick(key)
   }
 
+  const CircularProgressWithLabel = ({ value }) => {
+    return (
+      <Box
+        sx={{
+          position: "relative",
+          display: "inline-flex",
+          color: "white"
+        }}
+      >
+        <CircularProgress variant="determinate" value={value} size={45} />
+        <Box
+          sx={{
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            position: "absolute",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "white"
+          }}
+        >
+          <Typography
+            variant="caption"
+            component="div"
+            color="white"
+          >{`${Math.round(value)}%`}</Typography>
+        </Box>
+      </Box>
+    );
+  };
+
   return (<>
     <ToastContainer />
     <Navbar/>
@@ -186,6 +222,19 @@ const Dashboard = () => {
         <div className='sidebar_innner_container'>
           <button className="buttons" onClick={handleOpenFolderDialog}>Create Folder</button>
           <button className="buttons" onClick={handleOpenFileDialog}>Add File</button>
+          <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+          {(Object.keys(uploads).length > 0) ? 
+            Object.entries(uploads).map(([fileId, upload]) => (
+              <div key={fileId} style={{width: "80%", height: "80px",padding: "0px 10px ", margin: "10px 0px", backgroundColor: "rgb(80, 27, 144)", borderRadius: "10px", display: "flex",flexDirection: "row" , alignItems: "center", fontWeight: "bold"}}>
+                <div className="progress-bar">
+                  <CircularProgressWithLabel value={upload.progress} />
+                </div>
+                <div className="file-name" style={{color: "white", fontSize: "10px"}}>
+                  {upload.file_name}
+                </div>
+              </div>
+            )) : null}
+          </div>
         </div>
       </div>
       <div className=''>
