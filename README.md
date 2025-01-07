@@ -1,4 +1,4 @@
-
+![image](https://github.com/user-attachments/assets/bfc63f02-d279-43f1-a520-4c496f69dc4c)
 <p align="center"><h1 align="center">USKI-DRIVE.GIT</h1></p>
 
 ##  Table of Contents
@@ -121,6 +121,17 @@ Install Uski-Drive.git using one of the following methods:
 ```sh
 ❯ docker run -p 3000:80 -d kka01/uskidrive-frontend:latest 
 ```
+
+---
+##  Project Roadmap
+- [ ] **`Task 1`**: Github action backend deploy not working fix
+- [ ] **`Task 2`**: Github action frontend deploy not working fix
+- [ ] **`Task 3`**: Configure cloudwatch and alarms
+- [ ] **`Task 4`**: Deploy the application in multiple AWS regions using AWS Global Accelerator or Route 53
+latency-based routing.
+**`Task 5`**: Implement disaster recovery (DR) with cross-region backups of DynamoDB and S3 buckets.
+---
+
 
 ##  Contributing
 
