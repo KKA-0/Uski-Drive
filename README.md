@@ -128,7 +128,7 @@ Install Uski-Drive.git using one of the following methods:
 - [ ] **`Task 3`**: Configure cloudwatch and alarms
 - [ ] **`Task 4`**: Deploy the application in multiple AWS regions using AWS Global Accelerator or Route 53
 latency-based routing.
-**`Task 5`**: Implement disaster recovery (DR) with cross-region backups of DynamoDB and S3 buckets.
+- [ ] **`Task 5`**: Implement disaster recovery (DR) with cross-region backups of DynamoDB and S3 buckets.
 ---
 
 
