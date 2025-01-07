@@ -82,7 +82,7 @@ jobs:
 
     - name: Upload build.zip to GitHub Release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
       run: |
         VERSION=$(date +%Y%m%d%H%M%S)
         TAG="frontend-release-${VERSION}"
