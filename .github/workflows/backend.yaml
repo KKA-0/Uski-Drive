@@ -101,6 +101,7 @@ jobs:
       - name: "Upload functions.zip to GitHub Release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(date +%Y%m%d%H%M%S)
           TAG="backend-release-${VERSION}"
