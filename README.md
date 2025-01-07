@@ -122,19 +122,6 @@ Install Uski-Drive.git using one of the following methods:
 ❯ docker run -p 3000:80 -d kka01/uskidrive-frontend:latest 
 ```
 
-
----
-##  Project Roadmap
-
-- [X] **`Task 1`**: <strike>Delete Button</strike>
-- [ ] **`Task 2`**: Progress Sticky Bar
-- [ ] **`Task 3`**: Auto Refresh to get the files
-- [ ] **`Task 3`**: Share button to generate temp link for some time
-- [ ] **`Task 3`**: Download button
-- [ ] **`Task 3`**: Upload Limit (As per membership plan) 
-
----
-
 ##  Contributing
 
 - **💬 [Join the Discussions](https://github.com/KKA-0/Uski-Drive.git/discussions)**: Share your insights, provide feedback, or ask questions.
