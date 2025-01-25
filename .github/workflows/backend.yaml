@@ -33,12 +33,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: "npm"
 
       - name: "Run NPM Audit"
-        run: npm audit --audit-level=high || true
+        run: |
+          npm install
+          npm audit --audit-level=high || echo "Audit issues found, review manually."
         
-      - uses: actions/checkout@master
-  
   deployment:
     runs-on: ubuntu-latest
     needs: [security]
@@ -58,17 +59,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Install zip
-        uses: montudor/action-zip@v1
-
-      - name: "Create .env file"
-        run: |
-          echo 'region="ap-south-1"' >> .env
-          echo 'privateKey="${{ secrets.PRIVATE_KEY }}"' >> .env
-          echo 'Table="${{ secrets.DYNAMODB_TABLE }}"' >> .env
-          echo 'Bucket="${{ secrets.S3_BUCKET }}"' >> .env
-          echo 'FilesTable="${{ secrets.FILES_TABLE }}"' >> .env
+          cache: "npm"
 
       - name: "Install Dependencies"
         run: npm install
@@ -81,14 +72,10 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_ORG_TOKEN }}
 
-      - name: "List infra dir"
-        run: ls -la
-        working-directory: infra
-
       - name: "Terraform Init"
         run: terraform init
         working-directory: infra
-      
+
       - name: "Terraform Plan"
         run: terraform plan || (echo "Plan unsuccessful, check logs" && exit 1)
         working-directory: infra
