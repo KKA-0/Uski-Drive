@@ -67,7 +67,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       uses: docker/build-push-action@v6
       with:
-        context: .
+        context: frontend/.
         platforms: linux/amd64,linux/arm64
         cache-from: type=registry,ref=ghcr.io/kka-0/uski-drive-frontend:cache
         push: true
