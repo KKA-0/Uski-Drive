@@ -79,6 +79,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: build-artifact
+        
+    - name: Print Folder Tree
+      uses: jaywcjlove/github-action-folder-tree@main
+      with:
+        path: .
+        depth: 3
+  
 
     - name: Upload build.zip to GitHub Release
       env:
