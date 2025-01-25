@@ -101,9 +101,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ github.token }}
+        working-directory: infra
         run: |
           VERSION=$(date +%Y%m%d%H%M%S)
           TAG="backend-release-${VERSION}"
-          FILE_PATH="../infra/functions.zip"
+          FILE_PATH="function.zip"
           RELEASE_NAME="Backend"
           gh release create "$TAG" "$FILE_PATH" -t "$RELEASE_NAME" -n "Deployment Package for Backend CI/CD"
