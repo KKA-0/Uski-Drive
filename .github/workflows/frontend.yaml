@@ -69,9 +69,9 @@ jobs:
       with:
         context: .
         platforms: linux/amd64,linux/arm64
-        cache-from: type=registry,ref=ghcr.io/KKA-0/uski-drive-frontend:cache
+        cache-from: type=registry,ref=ghcr.io/kka-0/uski-drive-frontend:cache
         push: true
-        tags: ghcr.io/KKA-0/uski-drive-frontend:latest
+        tags: ghcr.io/kka-0/uski-drive-frontend:latest
 
   release:
     needs: build
