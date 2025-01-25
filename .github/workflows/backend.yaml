@@ -100,6 +100,7 @@ jobs:
       - name: Upload function.zip to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        working-directory: infra
         run: |
           VERSION=$(date +%Y%m%d%H%M%S)
           TAG="backend-release-${VERSION}"
