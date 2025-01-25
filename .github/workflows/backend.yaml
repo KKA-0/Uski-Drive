@@ -74,7 +74,7 @@ jobs:
         run: npm install
 
       - name: "Create Deployment Package"
-        run: zip -qq -r ../infra/functions.zip .
+        run: zip -qq -r ../infra/function.zip .
 
       - name: "Setup Terraform"
         uses: hashicorp/setup-terraform@v3
