@@ -93,6 +93,6 @@ jobs:
       run: |
         VERSION=$(date +%Y%m%d%H%M%S)
         TAG="frontend-release-${VERSION}"
-        FILE_PATH="build-artifact"
+        FILE_PATH="build.zip"
         RELEASE_NAME="Frontend"
         gh release create "$TAG" "$FILE_PATH" -t "$RELEASE_NAME" -n "Deployment Package for Frontend CI/CD"
