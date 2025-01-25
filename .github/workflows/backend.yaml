@@ -81,6 +81,10 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_ORG_TOKEN }}
 
+      - name: "List infra dir"
+        run: ls -la
+        working-directory: infra
+
       - name: "Terraform Init"
         run: terraform init
         working-directory: infra
