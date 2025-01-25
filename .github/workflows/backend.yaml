@@ -97,11 +97,9 @@ jobs:
         run: terraform apply -auto-approve || (echo "Apply unsuccessful, check logs" && exit 1)
         working-directory: infra
 
-      - name: "Upload functions.zip to GitHub Release"
+      - name: Upload function.zip to GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ github.token }}
-        working-directory: infra
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           VERSION=$(date +%Y%m%d%H%M%S)
           TAG="backend-release-${VERSION}"
