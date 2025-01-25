@@ -1,3 +1,4 @@
+# Using nginx apline image
 FROM nginx:alpine
 
 # Copy the built files from the previous stage
